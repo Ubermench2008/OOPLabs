@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "//wsl.localhost/Ubuntu/home/ivan/oopProjects/lab0b",
-      "program": "//wsl.localhost/Ubuntu/home/ivan/oopProjects/lab0b/build/Debug/outDebug",
+      "cwd": "c:/lab",
+      "program": "c:/lab/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

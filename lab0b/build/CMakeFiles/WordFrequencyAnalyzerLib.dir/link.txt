@@ -1,2 +1,0 @@
-/usr/bin/ar qc libWordFrequencyAnalyzerLib.a CMakeFiles/WordFrequencyAnalyzerLib.dir/src/WordFrequencyAnalyzer.cpp.o
-/usr/bin/ranlib libWordFrequencyAnalyzerLib.a

@@ -1,6 +1,0 @@
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/WordFrequencyAnalyzerLib.dir
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/WordFrequencyAnalyzerExecutable.dir
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/WordFrequencyAnalyzerTests.dir
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/test.dir
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/edit_cache.dir
-/home/ivan/oopProjects/lab0b/build/CMakeFiles/rebuild_cache.dir

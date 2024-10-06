@@ -1,126 +1,92 @@
 #include <gtest/gtest.h>
-#include "WordFrequencyAnalyzer.h"
-#include <fstream>
-#include <unistd.h>
-#include <vector>
-#include <utility>
-#include <sstream>
-#include <limits.h>
-#include <cstdlib>
-#include <iostream>
+#include "Reader.h"
+#include "TextProcessor.h"
+#include "Writer.h"
 
-bool compareFreq(std::ifstream& out, const std::vector<std::pair<int, std::string>>& expectedVec) {
-    std::string skipLine;
-    std::getline(out, skipLine);
+TEST(ReaderTest, FileReadSuccess) {
+    Reader reader("input.txt");
+    reader.readFile();
+    auto list = reader.getList();
+    EXPECT_GT(list.size(), 0);  // Ожидаем, что файл не пуст
+}
 
-    int counter = 0;
-    int lineIndex = 2;
-    std::string line;
-    bool isErrors = false;
+TEST(ReaderTest, FileReadEmpty) {
+    // Создаем пустой файл
+    std::ofstream outFile("tests/empty.txt");
+    outFile.close();
 
-    if (expectedVec.empty()) {
-        if (std::getline(out, line)) {
-            std::cerr << "Ошибка: пустой вектор\n";
-            isErrors = true;
-        }
-        return !isErrors;
+    Reader reader("tests/empty.txt");  // Пустой файл
+    reader.readFile();
+    auto list = reader.getList();
+    EXPECT_EQ(list.size(), 0);  // Ожидаем пустой список
+}
+
+TEST(ReaderTest, FileNotFound) {
+    Reader reader("abracadabra.txt");
+    EXPECT_EXIT(reader.readFile(), ::testing::ExitedWithCode(1), "Ошибка открытия файла");
+}
+
+TEST(TextProcessorTest, RemovePunctuation) {
+    Reader read("input.txt");
+    TextProcessor processor(read);
+
+    std::vector<std::string> wordsWithPunctuation = {
+        "hello!!!", "world??", "this,is", "a:test", "check;",
+        "quotes\"word\"", "parens(word)", "brackets[word]", "curly{word}", "ellipsis..."
+    };
+    std::vector<std::string> expectedResults = {
+        "hello", "world", "thisis", "atest", "check",
+        "quotesword", "parensword", "bracketsword", "curlyword", "ellipsis"
+    };
+
+    for (size_t i = 0; i < wordsWithPunctuation.size(); ++i) {
+        std::string result = processor.removePunctuation(wordsWithPunctuation[i]);
+        EXPECT_EQ(result, expectedResults[i]);
     }
+}
 
-    while (std::getline(out, line)) {
-        if (counter >= expectedVec.size()) {
-            std::cerr << "Ошибка: количество строк больше, чем ожидаемых частот\n";
-            isErrors = true;
-            break;
-        }
+TEST(TextProcessorTest, CountWords) {
+    Reader reader("tests/Loooong.txt");  // Файл должен содержать несколько слов
+    reader.readFile();
+    TextProcessor processor(reader);
+    processor.process();
+    EXPECT_EQ(processor.getCount(), 238527);  // Например, файл содержит 5 слов
+}
 
-        std::istringstream isStr(line);
-        std::string word, freqStr, percentStr;
+TEST(IntegrationTest, FullWorkflow) {
+    // Чтение файла
+    Reader reader("tests/test_input.txt");  // Файл с несколькими словами
+    reader.readFile();
+    ASSERT_GT(reader.getList().size(), 0);  // Убедитесь, что файл не пуст
 
-        std::getline(isStr, word, ',');       
-        std::getline(isStr, freqStr, ',');   
-        std::getline(isStr, percentStr);
+    // Обработка текста
+    TextProcessor processor(reader);
+    processor.process();
+    EXPECT_GT(processor.getCount(), 0);  // Проверка, что слова были обработаны
 
-        int currFreq = std::stoi(freqStr);
+    // Запись данных
+    Writer writer(processor);
+    writer.writeData("tests/integration_output.csv");
 
-        bool freqM = expectedVec[counter].first != currFreq;
-        bool percentM = expectedVec[counter].second != percentStr;
+    // Проверка содержимого выходного файла
+    std::ifstream csvFile("tests/integration_output.csv");
+    ASSERT_TRUE(csvFile.is_open());
 
-        if (freqM) {
-            std::cerr << "Несоответствие частот на строке " << lineIndex << ":\n"
-                      << "Строка: " << line << "\n"
-                      << "Ожидание: " << expectedVec[counter].first << ", Действительная: " << currFreq << std::endl;
-            isErrors = true;
-        }
+    std::ifstream expectedFile("tests/expected.csv");
+    ASSERT_TRUE(expectedFile.is_open());
 
-        if (percentM) {
-            std::cerr << "Несоответствие процентов на строке " << lineIndex << ":\n"
-                      << "Строка: " << line << "\n"
-                      << "Ожидание: " << expectedVec[counter].second << ", Действительная: " << percentStr << std::endl;
-            isErrors = true;
-        }
-
-        counter++;
-        lineIndex++;
+    std::string outputLine;
+    std::string expectedLine;
+    while (std::getline(expectedFile, expectedLine)) {
+        ASSERT_TRUE(std::getline(csvFile, outputLine));
+        expectedLine.erase(std::remove(expectedLine.begin(), expectedLine.end(), '\r'), expectedLine.end());
+        expectedLine.erase(std::remove(expectedLine.begin(), expectedLine.end(), '\n'), expectedLine.end());
+        outputLine.erase(std::remove(outputLine.begin(), outputLine.end(), '\r'), outputLine.end());
+        outputLine.erase(std::remove(outputLine.begin(), outputLine.end(), '\n'), outputLine.end());
+        EXPECT_EQ(outputLine, expectedLine);  // Проверка на полное соответствие строк
     }
-    return !isErrors;
 }
 
-void RunFrequencyTest(const std::string& inputFilePath, const std::string& expectedOutpuFilePath, const std::string& outputFilePath) {
-
-    std::remove(outputFilePath.c_str());
-
-    WordFrequencyAnalyzer analyzer;
-    analyzer.readInput(inputFilePath);
-    analyzer.processText();
-    analyzer.writeOutput(outputFilePath);
-
-    std::ifstream inpcsv(outputFilePath);
-    std::ifstream inpexp(expectedOutpuFilePath);
-
-    ASSERT_TRUE(inpcsv.is_open()) << "Не удалось открыть файл: " << outputFilePath;
-    ASSERT_TRUE(inpexp.is_open()) << "Не удалось открыть файл: " << expectedOutpuFilePath;
-
-    std::string tempLine;
-    std::getline(inpexp, tempLine);
-    std::string line;
-
-    std::vector<std::pair<int, std::string>> expectedFreq;
-    while (std::getline(inpexp, line)) {
-        std::istringstream isStr(line);
-        std::string word, freqStr, percentStr;
-
-        std::getline(isStr, word, ',');
-        std::getline(isStr, freqStr, ',');
-        std::getline(isStr, percentStr);
-
-        int intFreq = std::stoi(freqStr);
-        expectedFreq.emplace_back(intFreq, percentStr);
-    }
-
-    bool res = compareFreq(inpcsv, expectedFreq);
-
-    ASSERT_TRUE(res) << "Ошибка: частоты или проценты не совпадают с ожидаемыми для файла: " << inputFilePath;
-
-    inpcsv.close();
-    inpexp.close();
-}
-
-// Тесты
-TEST(FrequencyTest1, CheckWordFrequencies1) {
-    RunFrequencyTest("../tests/input1.txt", "../build/expectedFiles/expected_output1.csv", "out1.csv");
-}
-
-TEST(FrequencyTest2, CheckWordFrequencies2) {
-    RunFrequencyTest("../tests/input2.txt", "../build/expectedFiles/expected_output2.csv", "out2.csv");
-}
-
-TEST(FrequencyTest3, CheckWordFrequencies3) {
-    RunFrequencyTest("../tests/input3.txt", "../build/expectedFiles/expected_output3.csv", "out3.csv");
-}
-
-TEST(FrequencyTest4, CheckWordFrequencies4) {
-    RunFrequencyTest("../tests/input4.txt", "../build/expectedFiles/expected_output4.csv", "out4.csv");
-}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
