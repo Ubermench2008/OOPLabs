@@ -2,16 +2,6 @@
 #include "TextProcessor.h"
 #include "Writer.h"
 
-// int main() {
-//     std::locale::global(std::locale("C"));
-//     WordFrequencyAnalyzer analyzer;
-//     analyzer.readInput("input.txt");     
-//     analyzer.processText();               
-//     analyzer.writeOutput("out.csv");      
-//     analyzer.printTotalWords();
-//     return 0;
-// }
-
 int main()
 {
     std::locale::global(std::locale("C"));
