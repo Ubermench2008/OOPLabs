@@ -7,18 +7,17 @@ TEST(ReaderTest, FileReadSuccess) {
     Reader reader("input.txt");
     reader.readFile();
     auto list = reader.getList();
-    EXPECT_GT(list.size(), 0);  // Ожидаем, что файл не пуст
+    EXPECT_GT(list.size(), 0);
 }
 
 TEST(ReaderTest, FileReadEmpty) {
-    // Создаем пустой файл
     std::ofstream outFile("tests/empty.txt");
     outFile.close();
 
-    Reader reader("tests/empty.txt");  // Пустой файл
+    Reader reader("tests/empty.txt");
     reader.readFile();
     auto list = reader.getList();
-    EXPECT_EQ(list.size(), 0);  // Ожидаем пустой список
+    EXPECT_EQ(list.size(), 0);
 }
 
 TEST(ReaderTest, FileNotFound) {
@@ -46,29 +45,25 @@ TEST(TextProcessorTest, RemovePunctuation) {
 }
 
 TEST(TextProcessorTest, CountWords) {
-    Reader reader("tests/Loooong.txt");  // Файл должен содержать несколько слов
+    Reader reader("tests/Loooong.txt");
     reader.readFile();
     TextProcessor processor(reader);
     processor.process();
-    EXPECT_EQ(processor.getCount(), 238527);  // Например, файл содержит 5 слов
+    EXPECT_EQ(processor.getCount(), 238527);
 }
 
 TEST(IntegrationTest, FullWorkflow) {
-    // Чтение файла
-    Reader reader("tests/test_input.txt");  // Файл с несколькими словами
+    Reader reader("tests/test_input.txt");
     reader.readFile();
-    ASSERT_GT(reader.getList().size(), 0);  // Убедитесь, что файл не пуст
+    ASSERT_GT(reader.getList().size(), 0);
 
-    // Обработка текста
     TextProcessor processor(reader);
     processor.process();
-    EXPECT_GT(processor.getCount(), 0);  // Проверка, что слова были обработаны
+    EXPECT_GT(processor.getCount(), 0);
 
-    // Запись данных
     Writer writer(processor);
     writer.writeData("tests/integration_output.csv");
 
-    // Проверка содержимого выходного файла
     std::ifstream csvFile("tests/integration_output.csv");
     ASSERT_TRUE(csvFile.is_open());
 
@@ -83,7 +78,7 @@ TEST(IntegrationTest, FullWorkflow) {
         expectedLine.erase(std::remove(expectedLine.begin(), expectedLine.end(), '\n'), expectedLine.end());
         outputLine.erase(std::remove(outputLine.begin(), outputLine.end(), '\r'), outputLine.end());
         outputLine.erase(std::remove(outputLine.begin(), outputLine.end(), '\n'), outputLine.end());
-        EXPECT_EQ(outputLine, expectedLine);  // Проверка на полное соответствие строк
+        EXPECT_EQ(outputLine, expectedLine);
     }
 }
 
