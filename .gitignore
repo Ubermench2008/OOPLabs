@@ -1,4 +1,7 @@
 lab0b/.vscode/
 lab0b/build/
 lab0b/docs/
+lab0b/*.Identifier
+lab0b/*.Zone.Identifier
+*.Identifier
 *.Zone.Identifier
