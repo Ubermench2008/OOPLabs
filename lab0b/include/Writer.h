@@ -5,12 +5,15 @@
 
 class Writer
 {
-    std::map<std::string, int> wordFreq;
-    int countWords; 
+private:
+    int countWords;
+    std::string outFileName;
 public:
-    Writer(TextProcessor& processor) : wordFreq(processor.getFreq()), countWords(processor.getCount()) {}
+    Writer() = default;
     static bool compareByFrequency(const std::pair<std::string, int>& a, const std::pair<std::string, int>& b);
-    void writeData(const std::string& outputFileName);
+    void setFileName(const std::string& str);
+    void writeData(std::map<std::string, int>& wordFreq);
+    void setCountWords(int count);
     void printTotalWords();
 };
 

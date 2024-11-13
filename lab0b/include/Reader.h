@@ -4,15 +4,14 @@
 
 class Reader
 {
-    std::list<std::string> stringList;
-    const std::string filename;
+private:
+    std::string filename;
 public:
-    Reader(const std::string& fileName) : filename(fileName) {}
-    Reader() : filename("input.txt") {}
+    Reader() = default;
 
-    void readFile();
+    void setFileName(const std::string& str);
 
-    std::list<std::string> getList() const;
+    std::list<std::string> readFile();
 };
 
 #endif

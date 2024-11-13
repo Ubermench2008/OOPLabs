@@ -11,8 +11,9 @@ std::string TextProcessor::removePunctuation(const std::string& word)
     return cleanedWord;
 }
 
-void TextProcessor::process()
+std::map<std::string, int> TextProcessor::process(std::list<std::string>& stringList)
 {
+    std::map<std::string, int> wordFreq;
     for (const auto& str : stringList) {
         std::istringstream strToStream(str);
         std::string word;
@@ -25,10 +26,6 @@ void TextProcessor::process()
             }
         }
     }
-}
-
-std::map<std::string, int> TextProcessor::getFreq() const
-{
     return wordFreq;
 }
 

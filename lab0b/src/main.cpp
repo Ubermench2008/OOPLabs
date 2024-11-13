@@ -6,14 +6,20 @@ int main()
 {
     std::locale::global(std::locale("C"));
 
-    Reader read("input.txt");
-    read.readFile();
+    Reader reader;
+    reader.setFileName("input.txt");
 
-    TextProcessor processor(read);
-    processor.process();
+    auto readerData = reader.readFile();
 
-    Writer write(processor);
-    write.writeData("out.csv");
+    TextProcessor processor;
+
+    auto processorData = processor.process(readerData);
+
+    Writer write;
+    write.setFileName("out.csv");
+    write.setCountWords(processor.getCount());
+
+    write.writeData(processorData);
 
     write.printTotalWords();
 

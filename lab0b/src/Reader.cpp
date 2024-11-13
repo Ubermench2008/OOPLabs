@@ -1,6 +1,7 @@
 #include "Reader.h"
 
-void Reader::readFile() {
+std::list<std::string> Reader::readFile() {
+    std::list<std::string> stringList;
     std::ifstream in(filename);
     if (!in.is_open()) {
         std::cerr << "Ошибка открытия файла: " << filename << std::endl;
@@ -12,9 +13,9 @@ void Reader::readFile() {
         stringList.push_back(currentString);
     }
     in.close();
+    return stringList;
 }
 
-std::list<std::string> Reader::getList() const
-{
-    return stringList; 
+void Reader::setFileName(const std::string& str){
+    this->filename = str;
 }

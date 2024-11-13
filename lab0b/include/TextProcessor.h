@@ -4,17 +4,14 @@
 
 class TextProcessor
 {
-    std::list<std::string> stringList;        
-    std::map<std::string, int> wordFreq;
-    int countWords;   
+private:
+    int countWords{0};   
 public:
-    TextProcessor(Reader& readData) : stringList(readData.getList()), wordFreq(), countWords(0) {}
+    TextProcessor() = default;
 
     std::string removePunctuation(const std::string& word);
 
-    void process();
-
-    std::map<std::string, int> getFreq() const;
+    std::map<std::string, int> process(std::list<std::string>& stringList);
 
     int getCount();
 };
