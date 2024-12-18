@@ -1,6 +1,7 @@
 #include "LRUCache.h"
 #include "LFUCache.h"
 #include "CacheWrapper.h"
+#include "cmdArgumentValidator.h"
 #include <iostream>
 #include <memory>
 #include <cstdlib>
@@ -35,25 +36,27 @@ FibResult fibonacci(int n, CacheWrapper<Key, Value>& cache) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <тип_кэша>\n";
-        std::cerr << "Тип кэша:\n1 - LRU\n2 - LFU\n";
-        return 1;
-    }
-
-    int cacheType = std::atoi(argv[1]);
-    int cacheSize = 100;
 
     std::shared_ptr<ICacheable<int, long long>> cacheImpl;
+    int cacheSize = 100;
 
-    if (cacheType == 1) {
-        cacheImpl = std::make_shared<LRUCache<int, long long>>(cacheSize);
-        std::cout << "LRU-кэш\n";
-    } else if (cacheType == 2) {
-        cacheImpl = std::make_shared<LFUCache<int, long long>>(cacheSize);
-        std::cout << "LFU-кэш\n";
-    } else {
-        std::cerr << "Неверный тип кэша. Выберите 1 для LRU или 2 для LFU.\n";
+    try{
+        ParsedArgs args = CommandLineValidator::Parse(argc, argv);
+        if (args.cacheType == 1){
+            cacheImpl = std::make_shared<LRUCache<int, long long>>(cacheSize);
+            std::cout << "LRU-кэш\n";
+        } else if (args.cacheType == 2){
+            cacheImpl = std::make_shared<LFUCache<int, long long>>(cacheSize);
+            std::cout << "LFU-кэш\n";
+        }
+    } catch (WrongArgumentsCountException& e){
+        std::cerr << e.what() << '\n';
+        return 1;
+    } catch (std::invalid_argument& e){
+        std::cerr << e.what() << '\n';
+        return 1;
+    } catch (std::exception &e){
+        std::cerr << e.what() << '\n';
         return 1;
     }
 

@@ -45,6 +45,17 @@ using ::testing::Return;
 using ::testing::Throw;
 using ::testing::AnyNumber;
 
+TEST(CmdArgumetsTest, OnceTest) {
+    int argc = 5;
+    char* argv[argc] = {(char*)"3", (char*)"-1", (char*)"sdfs", (char*)"^$##", (char*)"="};
+    char* testedArgv[2] = {};
+    for (int i = 0; i < argc; i++){
+        testedArgv[1] = argv[i];
+        EXPECT_THROW(CommandLineValidator::Parse(2, testedArgv), std::invalid_argument);
+    }
+    EXPECT_THROW(CommandLineValidator::Parse(3, testedArgv), WrongArgumentsCountException);
+}
+
 TEST(LRUCacheTest, BasicOperations) {
     LRUCache<int, long long> lru(2);
     lru.put(1, 10);

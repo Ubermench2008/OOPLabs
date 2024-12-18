@@ -1,0 +1,20 @@
+# Игнорировать папку настроек редактора
+.vscode/
+
+# Игнорировать временные и скомпилированные файлы в папке tests
+tests/tests_run
+tests/tests.gcda
+tests/tests.o
+tests/tests.gcno
+
+# Игнорировать папку с отчётами о покрытии
+coverage_report/
+
+# Игнорировать библиотеку Google Test
+googletest/
+
+# Игнорировать временные и скомпилированные файлы в папке src
+src/main_run
+src/main.gcda
+src/main.gcno
+src/main.o
