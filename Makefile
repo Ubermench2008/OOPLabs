@@ -1,52 +1,40 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -I./include -Wall -g
+CXXFLAGS = -std=c++17 -Iinclude -Igoogletest/googletest/include -Wall -g -O0 -fprofile-arcs -ftest-coverage -pthread
+LDFLAGS = -Lgoogletest/build/lib -lgtest -lgtest_main -lgmock -lgmock_main -pthread -lgcov
+
 
 SRC_DIR = src
-INCLUDE_DIR = include
 TEST_DIR = tests
+INCLUDE_DIR = include
 
-OBJ = $(SRC_DIR)/main.o \
-      $(SRC_DIR)/LRUCache.o \
-      $(SRC_DIR)/LFUCache.o \
-      $(SRC_DIR)/CacheWrapper.o
+# Если у вас есть main.cpp для запуска, добавьте его сборку:
+MAIN_OBJ = $(SRC_DIR)/main.o
 
-TEST_OBJ = $(TEST_DIR)/test.o \
-           $(SRC_DIR)/LRUCache.o \
-           $(SRC_DIR)/LFUCache.o \
-           $(SRC_DIR)/CacheWrapper.o
+TEST_OBJ = $(TEST_DIR)/tests.o
 
-all: main
+all: tests_run main_run
 
-main: $(OBJ)
-	$(CXX) -o main $(OBJ)
+tests_run: $(TEST_OBJ)
+	$(CXX) -o $(TEST_DIR)/tests_run $(TEST_OBJ) $(LDFLAGS)
 
-$(SRC_DIR)/main.o: $(SRC_DIR)/main.cpp $(INCLUDE_DIR)/ICacheable.h $(INCLUDE_DIR)/CacheWrapper.h
+main_run: $(MAIN_OBJ)
+	$(CXX) -o $(SRC_DIR)/main_run $(MAIN_OBJ) $(LDFLAGS)
+
+# Компиляция тестов
+$(TEST_DIR)/tests.o: $(TEST_DIR)/tests.cpp \
+                     $(INCLUDE_DIR)/ICacheable.h \
+                     $(INCLUDE_DIR)/CacheWrapper.h \
+                     $(INCLUDE_DIR)/LFUCache.h \
+                     $(INCLUDE_DIR)/LRUCache.h
+	$(CXX) $(CXXFLAGS) -c $(TEST_DIR)/tests.cpp -o $(TEST_DIR)/tests.o
+
+# Компиляция main (если используете main.cpp)
+$(SRC_DIR)/main.o: $(SRC_DIR)/main.cpp \
+                   $(INCLUDE_DIR)/ICacheable.h \
+                   $(INCLUDE_DIR)/CacheWrapper.h \
+                   $(INCLUDE_DIR)/LFUCache.h \
+                   $(INCLUDE_DIR)/LRUCache.h
 	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/main.cpp -o $(SRC_DIR)/main.o
 
-$(SRC_DIR)/LRUCache.o: $(SRC_DIR)/LRUCache.cpp $(INCLUDE_DIR)/LRUCache.h $(INCLUDE_DIR)/ICacheable.h
-	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/LRUCache.cpp -o $(SRC_DIR)/LRUCache.o
-
-$(SRC_DIR)/LFUCache.o: $(SRC_DIR)/LFUCache.cpp $(INCLUDE_DIR)/LFUCache.h $(INCLUDE_DIR)/ICacheable.h
-	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/LFUCache.cpp -o $(SRC_DIR)/LFUCache.o
-
-$(SRC_DIR)/CacheWrapper.o: $(SRC_DIR)/CacheWrapper.cpp $(INCLUDE_DIR)/CacheWrapper.h $(INCLUDE_DIR)/ICacheable.h
-	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/CacheWrapper.cpp -o $(SRC_DIR)/CacheWrapper.o
-
-test: $(TEST_OBJ)
-	$(CXX) -o test $(TEST_OBJ)
-
-$(TEST_DIR)/test.o: $(TEST_DIR)/test.cpp \
-                     $(INCLUDE_DIR)/ICacheable.h \
-                     $(INCLUDE_DIR)/LRUCache.h \
-                     $(INCLUDE_DIR)/LFUCache.h \
-                     $(INCLUDE_DIR)/CacheWrapper.h
-	$(CXX) $(CXXFLAGS) -c $(TEST_DIR)/test.cpp -o $(TEST_DIR)/test.o
-
-.PHONY: all clean test run
-
-run: main
-	@echo "Запуск программы с аргументами: $(ARGS)"
-	./main $(ARGS)
-
 clean:
-	rm -f $(SRC_DIR)/*.o $(TEST_DIR)/*.o main test
+	rm -f $(SRC_DIR)/*.o $(SRC_DIR)/*.gcno $(TEST_DIR)/*.o $(TEST_DIR)/*.gcno $(TEST_DIR)/*.gcda $(TEST_DIR)/tests_run $(SRC_DIR)/main_run

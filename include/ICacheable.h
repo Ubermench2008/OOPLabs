@@ -1,11 +1,14 @@
 #ifndef ICACHEABLE_H
 #define ICACHEABLE_H
 
+#include <stdexcept>
+
+template<typename Key, typename Value>
 class ICacheable {
 public:
     virtual ~ICacheable() = default;
-    virtual long long get(int key) = 0;
-    virtual void put(int key, long long value) = 0;
+    virtual Value get(const Key& key) = 0;
+    virtual void put(const Key& key, const Value& value) = 0;
     virtual void clear() = 0;
 };
 

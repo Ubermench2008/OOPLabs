@@ -6,18 +6,49 @@
 #include <unordered_map>
 #include <stdexcept>
 
-class LRUCache : public ICacheable {
+template<typename Key, typename Value>
+class LRUCache : public ICacheable<Key, Value> {
 private:
     int capacity;
-    std::list<std::pair<int, long long>> cacheList;
-    std::unordered_map<int, decltype(cacheList.begin())> cacheMap;
+    std::list<std::pair<Key, Value>> cacheList;
+    std::unordered_map<Key, typename std::list<std::pair<Key, Value>>::iterator> cacheMap;
 
 public:
-    LRUCache(int cap);
-    long long get(int key) override;
-    void put(int key, long long value) override;
-    long long operator[](int key);  
-    void clear() override;
+    LRUCache(int cap) : capacity(cap) {}
+
+    Value get(const Key& key) override {
+        auto it = cacheMap.find(key);
+        if (it == cacheMap.end()) {
+            throw std::runtime_error("Key not found");
+        }
+        cacheList.splice(cacheList.begin(), cacheList, it->second);
+        return it->second->second;
+    }
+
+    void put(const Key& key, const Value& value) override { 
+        if (capacity == 0) return;
+
+        auto it = cacheMap.find(key);
+        if (it != cacheMap.end()) {
+            cacheList.splice(cacheList.begin(), cacheList, it->second);
+            it->second->second = value;
+            return;
+        }
+
+        if ((int)cacheList.size() == capacity) {
+            Key lastKey = cacheList.back().first;
+            cacheList.pop_back();
+            cacheMap.erase(lastKey);
+        }
+
+        cacheList.emplace_front(key, value);
+        cacheMap[key] = cacheList.begin();
+    }
+
+    void clear() override {
+        cacheList.clear();
+        cacheMap.clear();
+    }
 };
 
 #endif
