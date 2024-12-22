@@ -14,7 +14,6 @@ struct FibResult {
     bool fromCache;
 };
 
-template<typename Key, typename Value>
 FibResult fibonacci(int n, CacheWrapper<Key, Value>& cache) {
     if (n == 1) return FibResult{1, false};
     if (n == 2) return FibResult{1, false};
