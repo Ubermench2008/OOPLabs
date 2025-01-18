@@ -10,28 +10,16 @@
 SoundProcessor::SoundProcessor(int argc, char **argv): argc(argc), argv(argv) {}
 
 void PrintHelp() {
-    std::cout << "Использование:" << std::endl;
-    std::cout << "  sound_processor -h - показать справку" << std::endl;
-    std::cout << "  sound_processor -c <config_file> <output_file> <input_file> [additional_files...]" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Ключи:" << std::endl;
-    std::cout << "  -h - Показать справку" << std::endl;
-    std::cout << "  -c <config_file> <output_file> <input_file> [additional_files...] - Обработать аудио с конфиг-файлом" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Конфигурация эффекта в файле <config_file>:" << std::endl;
-    std::cout << "  <effect_name> <arguments>" << std::endl;
-    std::cout << "Доступные эффекты:" << std::endl;
-    std::cout << "  mute <start_time> <end_time> - Отключить звука в интервале" << std::endl;
-    std::cout << "  mix $<file_index> <start_time> - Смешивание с дополнительным файлом (индекс начинается с 1)" << std::endl;
-    std::cout << "  volume <factor> <start_time> <end_time> - Регулировка громкости" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Описание эффекта 'volume':" << std::endl;
-    std::cout << "  volume <factor> <start_time> <end_time> - Регулирует громкость." << std::endl;
-    std::cout << "    <factor> - коэффициент громкости. Значение 1.0 означает исходную громкость, " << std::endl;
-    std::cout << "    значения меньше 1.0 уменьшат громкость, а больше 1.0 - увеличат." << std::endl;
-    std::cout << "    <start_time> и <end_time> (необязательные) - указывают интервал (в секундах), в " << std::endl;
-    std::cout << "    котором будет применяться изменение громкости. Если эти параметры не указаны, " << std::endl;
-    std::cout << "    эффект применяется ко всему аудио файлу." << std::endl;
+    std::ifstream helpFile("help.txt");
+    if (!helpFile.is_open()) {
+        std::cerr << "Ошибка открытия справочного файла." << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(helpFile, line)) {
+        std::cout << line << std::endl;
+    }
 }
 
 void SoundProcessor::RegisterConverters() {
