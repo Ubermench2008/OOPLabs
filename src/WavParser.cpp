@@ -3,17 +3,19 @@
 
 WavParser::WavParser(std::string fileName): fileName(fileName) {}
 
+WavParser::WavParser(std::string fileName): fileName(fileName) {}
+
 std::vector<short int> WavParser::parse() {
-    std::ifstream file(fileName, std::ios::binary);
+    std::ifstream file(fileName, std::ios::binary); // читаем файл
     if(!file.is_open()) {
         throw std::runtime_error("Не удалось открыть файл: " + fileName);
     }
 
-    header =(wav_header* ) malloc(sizeof(wav_header));
+    header = new wav_header;
 
-    file.read((char* )header, sizeof(wav_header));
+    file.read(reinterpret_cast<char*>(header), sizeof(wav_header));
 
-    char* junk =(char *)malloc(sizeof(char) * (header->subchunk2_size + 4));
+    char* junk = new char[header->subchunk2_size + 4];
     file.read(junk, sizeof(char) * (header->subchunk2_size + 4));
 
     int dataSize;
@@ -23,7 +25,7 @@ std::vector<short int> WavParser::parse() {
     data.resize(dataSize);
     file.read((char *)data.data(), dataSize);
 
-    free(junk);
+    delete[] junk;
     return data;
 }
 
