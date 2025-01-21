@@ -26,7 +26,7 @@ public:
     ~WavParser();
     WavParser(std::string fileName);
     std::vector<short int> parse();
-    Wav_header* header;
+    std::shared_ptr<Wav_header> header;
 private:
     std::string fileName;
 };
