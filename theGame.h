@@ -1,9 +1,26 @@
 #pragma once
 #include <fstream>
 #include <string>
+#include <unordered_map>
 #include <msclr\marshal_cppstd.h>
 
 using namespace System::Media;
+
+enum DifficultyLevel {
+    Easy,
+    Middle,
+    BIZZARE,
+    HARDCORE
+};
+
+static const std::unordered_map<std::string, DifficultyLevel> difficultyMap = {
+    {"Easy", Easy},
+    {"Middle", Middle},
+    {"BIZZARE", BIZZARE},
+    {"HARDCORE", HARDCORE}
+};
+
+
 
 namespace TheBestestGameOfTheWorld {
 
@@ -33,7 +50,7 @@ namespace TheBestestGameOfTheWorld {
 
         Label^ scoreLabel;
         Label^ timeLabel;
-        int timeCounter; // подсчет количества тиков
+        int timeCounter; //РЎС‡РёС‚Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РёРєРѕРІ
 
         SoundPlayer^ wallSound;
         SoundPlayer^ platformSound;
@@ -50,9 +67,6 @@ namespace TheBestestGameOfTheWorld {
             this->DoubleBuffered = true;
             SetupGameParameters();
             CreateGameObjects();
-            wallSound = gcnew SoundPlayer("wall_hit.wav");
-            platformSound = gcnew SoundPlayer("platform_hit.wav");
-            gameOverSound = gcnew SoundPlayer("gameover.wav");
         }
 
     protected:
@@ -99,45 +113,53 @@ namespace TheBestestGameOfTheWorld {
 
     private: void SetupGameParameters()
     {
-        // Параметры в зависимости от сложности
-        if (this->difficulty == "Easy") {
+         DifficultyLevel level;
+         auto it = difficultyMap.find(msclr::interop::marshal_as<std::string>(this->difficulty));
+         if (it != difficultyMap.end()) {
+             level = it->second;
+         }
+        
+        //Р—Р°РґР°РµРј РїР°СЂР°РјРµС‚СЂС‹ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃР»РѕР¶РЅРѕСЃС‚Рё
+        switch (level) {
+        case Easy:
             this->ballSpeedX = 5;
             this->ballSpeedY = 5;
             this->platformHeight = 200;
             this->scorePerHit = 1.0;
-        }
-        else if (this->difficulty == "Middle") {
+            break;
+        case Middle:
             this->ballSpeedX = 7;
             this->ballSpeedY = 7;
             this->platformHeight = 150;
             this->scorePerHit = 1.5;
-        }
-        else if (this->difficulty == "BIZZARE") {
+            break;
+        case BIZZARE:
             this->ballSpeedX = 9;
             this->ballSpeedY = 9;
             this->platformHeight = 120;
             this->scorePerHit = 2.0;
-        }
-        else if (this->difficulty == "HARDCORE") {
+            break;
+        case HARDCORE:
             this->ballSpeedX = 12;
             this->ballSpeedY = 12;
             this->platformHeight = 80;
             this->scorePerHit = 3.0;
+            break;
         }
         this->platformSpeed = 20;
         this->currentScore = 0;
 
-        //Счетчик времени в тиках пока что 0
+        //РЎС‡РµС‚С‡РёРє РІСЂРµРјРµРЅРё РІ С‚РёРєР°С…, РїРѕРєР° С‡С‚Рѕ РЅРѕР»СЊ
         this->timeCounter = 0;
     }
 
     private: void CreateGameObjects()
     {
-        //Мяч(квадрат по сути)
+        //РњСЏС‡РёРє(РєРІР°РґСЂР°С‚)
         ball = gcnew PictureBox();
         ball->Width = 30;
         ball->Height = 30;
-        //Задаём фон
+        //Р¤РѕРЅ
         ball->BackgroundImage = Image::FromFile("ball_image.jpg");
         ball->BackgroundImageLayout = ImageLayout::Stretch;
         ball->BackColor = Color::Transparent;
@@ -146,11 +168,11 @@ namespace TheBestestGameOfTheWorld {
         ball->BorderStyle = BorderStyle::None;
         this->Controls->Add(ball);
 
-        //левая платформа
+        //Р›РµРІР°СЏ РїР»Р°С‚С„РѕСЂРјР°
         platform = gcnew PictureBox();
         platform->Width = 20;
         platform->Height = this->platformHeight;
-        platform->BackgroundImage = Image::FromFile("platform_image.jpg"); // ваш файл
+        platform->BackgroundImage = Image::FromFile("platform_image.jpg");
         platform->BackgroundImageLayout = ImageLayout::Stretch;
         platform->BackColor = Color::Transparent;
         platform->Left = 0;
@@ -158,7 +180,7 @@ namespace TheBestestGameOfTheWorld {
         platform->BorderStyle = BorderStyle::None;
         this->Controls->Add(platform);
 
-        // лейбл со счетом
+        //Р»РµР№Р±Р» СЃРѕ СЃС‡РµС‚РѕРј
         scoreLabel = gcnew Label();
         scoreLabel->ForeColor = Color::Yellow;
         scoreLabel->BackColor = Color::Transparent;
@@ -169,7 +191,7 @@ namespace TheBestestGameOfTheWorld {
         scoreLabel->Top = 10;
         this->Controls->Add(scoreLabel);
 
-        //лейбл со временем
+        //Р»РµР№Р±Р» СЃРѕ РІСЂРµРјРµРЅРµРј
         timeLabel = gcnew Label();
         timeLabel->ForeColor = Color::Cyan;
         timeLabel->BackColor = Color::Transparent;
@@ -180,7 +202,7 @@ namespace TheBestestGameOfTheWorld {
         timeLabel->Top = 10;
         this->Controls->Add(timeLabel);
 
-        //Объект-таймер
+        //РѕР±СЉРµРєС‚-С‚Р°Р№РјРµСЂ, СЃ РёРЅС‚РµСЂРІР°Р»РѕРј С‚РёРєРѕРІ - 20РјСЃ
         gameTimer = gcnew Timer();
         gameTimer->Interval = 20;
         gameTimer->Tick += gcnew EventHandler(this, &theGame::gameTimer_Tick);
@@ -198,18 +220,16 @@ namespace TheBestestGameOfTheWorld {
     }
 
     private: void CheckCollisions() {
-        //Правая стена
+        //РїСЂР°РІР°СЏ СЃС‚РµРЅР°
         if (ball->Right >= this->ClientSize.Width) {
             ballSpeedX = -ballSpeedX;
-            wallSound->Play();
         }
-        //Верхняя и нижняя границы
+        //Р’РµСЂС…РЅСЏСЏ Рё РЅРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р°
         if (ball->Top <= 0 || ball->Bottom >= this->ClientSize.Height) {
             ballSpeedY = -ballSpeedY;
-            wallSound->Play();
         }
 
-        //Левая граница (платформа)
+        //Р»РµРІР°СЏ РіСЂР°РЅРёС†Р°(РїР»Р°С‚С„РѕСЂРјР°)
         if (ball->Left <= platform->Right) {
             if ((ball->Bottom >= platform->Top) && (ball->Top <= platform->Bottom)) {
                 ballSpeedX = -ballSpeedX;
@@ -217,14 +237,12 @@ namespace TheBestestGameOfTheWorld {
 
                 System::String^ displayScore = currentScore == (int)currentScore ? ((int)currentScore).ToString() : currentScore.ToString("F1");
                 scoreLabel->Text = "Score: " + displayScore;
-                platformSound->Play();
             }
             else {
-                //промах
-                gameOverSound->Play();
+                //РїСЂРѕРјР°С…
                 gameTimer->Stop();
                 SaveResult();
-                MessageBox::Show("Game Over! Ваш счёт: " + (currentScore == (int)currentScore ? ((int)currentScore).ToString() : currentScore.ToString("F1")));
+                MessageBox::Show("Game Over! Р’Р°С€ СЃС‡РµС‚: " + (currentScore == (int)currentScore ? ((int)currentScore).ToString() : currentScore.ToString("F1")));
                 if (parentForm != nullptr) {
                     parentForm->Show();
                 }
@@ -234,16 +252,15 @@ namespace TheBestestGameOfTheWorld {
     }
 
     private: void UpdateTime() {
-        //Каждые 20 мс тик, в одной секунде 1000 мс, 
-        //за 1 с будет 1000/20 = 50 тиков
-        //Каждые 50 тиков — 1 секунда
+        //РљР°Р¶РґС‹Р№ 20 РјСЃ С‚РёРє, РІ РѕРґРЅРѕР№ СЃРµРєСѓРЅРґСѓ 1000РјСЃ
+        //Р·Р° 1 СЃ Р±СѓРґРµС‚ 50 С‚РёРєРѕРІ. РљР°Р¶РґС‹Р№ 50С‚РёРєРѕРІ 1 СЃРµРєСѓРЅРґР°:
         timeCounter++;
         int seconds = timeCounter / 50;
         timeLabel->Text = "Time: " + seconds.ToString() + "s";
     }
 
     private: void SaveResult() {
-        //Получаем текущее время
+        //РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ
         std::time_t t = std::time(nullptr);
         std::tm tm;
         localtime_s(&tm, &t);
@@ -262,7 +279,7 @@ namespace TheBestestGameOfTheWorld {
 
         std::string fileName = "records.txt";
 
-        //считываем рекорды из файла в вектор
+        //РЎС‡РёС‚С‹РІР°РµРј СЂРµРєРѕСЂРґС‹ РёР· С„Р°Р№Р»Р° РІ РІРµРєС‚РѕСЂ
         std::vector<std::string> lines;
         std::ifstream infile(fileName);
         std::string line;
@@ -273,7 +290,7 @@ namespace TheBestestGameOfTheWorld {
         }
         infile.close();
 
-        // Попытка обновления существующей записи
+        //РџС‹С‚Р°РµРјСЃСЏ РѕР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ Р·Р°РїРёСЃСЊ
         bool recordUpdated = false;
         for (auto& line : lines) {
             size_t first = line.find(';');
@@ -293,7 +310,7 @@ namespace TheBestestGameOfTheWorld {
             if (name == player_name) {
                 double new_score = std::stod(score_std);
                 if (new_score > old_score) {
-                    //обновляем запись
+                    //РѕР±РЅРѕРІР»СЏРµРј Р·Р°РїРёСЃСЊ
                     line = player_name + ";" + score_std + ";" + datetime;
                 }
                 recordUpdated = true;
@@ -301,12 +318,12 @@ namespace TheBestestGameOfTheWorld {
             }
         }
 
-        //если не обновили,т.е не нашли name == playerName, то добавляем новую запись
+        //РµСЃР»Рё РЅРµ РѕР±РЅРѕРІРёР»Рё, С‚.Рµ РЅРµ РЅР°С€Р»Рё == playerName С‚Рѕ РґРѕР±Р°РІР»СЏРµРј РЅРѕРІСѓСЋ
         if (!recordUpdated) {
             lines.push_back(player_name + ";" + score_std + ";" + datetime);
         }
 
-        //перезапись
+        //РїРµСЂРµР·Р°РїРёСЃСЊ
         {
             std::ofstream outfile(fileName, std::ios_base::trunc);
             for (auto& l : lines) {
@@ -317,7 +334,7 @@ namespace TheBestestGameOfTheWorld {
 
 
     private: System::Void theGame_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
-        //двигаем платформу слева
+        //РґРІРёРіР°РµРј Р»РµРІСѓСЋ РїР»Р°С‚С„РѕРѕСЂРјСѓ up/down
         if (e->KeyCode == Keys::Up && platform->Top > 0) {
             platform->Top -= platformSpeed;
         }
