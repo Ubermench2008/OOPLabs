@@ -5,14 +5,14 @@
 #include <algorithm>
 #include <msclr\marshal_cppstd.h>
 
-//ñòðóêòóðà äëÿ õðàíåíèÿ äàííûõ î ðåçóëüòàòå (äëÿ óäîáñòâà)
+//ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ð° Ð´Ð»Ñ Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¾ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ðµ(Ð´Ð»Ñ ÑƒÐ´Ð¾Ð±ÑÑ‚Ð²Ð°)
 struct RecordEntry {
     std::string name;
     double score;
     std::string datetime;
 };
 
-//êîìïàðàòîð >
+//ÐºÐ¾Ð¼Ð¿Ð°Ñ€Ð°Ñ‚Ð¾Ñ€ >
 bool CompareRecords(const RecordEntry& a, const RecordEntry& b) {
     return a.score > b.score;
 }
@@ -70,14 +70,14 @@ namespace TheBestestGameOfTheWorld {
             this->recordsListView->FullRowSelect = true;
             this->recordsListView->GridLines = true;
 
-            //äîáàâëåíèå êîëîíîê(itemîâ)
-            this->recordsListView->Columns->Add(L"Èìÿ", 200, System::Windows::Forms::HorizontalAlignment::Left);
-            this->recordsListView->Columns->Add(L"Î÷êè", 100, System::Windows::Forms::HorizontalAlignment::Center);
-            this->recordsListView->Columns->Add(L"Äàòà", 250, System::Windows::Forms::HorizontalAlignment::Left);
+            //Ã¤Ã®Ã¡Ã Ã¢Ã«Ã¥Ã­Ã¨Ã¥ ÃªÃ®Ã«Ã®Ã­Ã®Ãª(itemÃ®Ã¢)
+            this->recordsListView->Columns->Add(L"ÃˆÃ¬Ã¿", 200, System::Windows::Forms::HorizontalAlignment::Left);
+            this->recordsListView->Columns->Add(L"ÃŽÃ·ÃªÃ¨", 100, System::Windows::Forms::HorizontalAlignment::Center);
+            this->recordsListView->Columns->Add(L"Ã„Ã Ã²Ã ", 250, System::Windows::Forms::HorizontalAlignment::Left);
             //
             // backButton
             //
-            this->backButton->Text = L"Íàçàä";
+            this->backButton->Text = L"ÃÃ Ã§Ã Ã¤";
             this->backButton->Font = (gcnew System::Drawing::Font(L"Calibri", 12));
             this->backButton->Location = System::Drawing::Point(20, 350);
             this->backButton->Click += gcnew System::EventHandler(this, &RecordsForm::backButton_Click);
@@ -88,7 +88,7 @@ namespace TheBestestGameOfTheWorld {
             this->ClientSize = System::Drawing::Size(600, 450);
             this->Controls->Add(this->recordsListView);
             this->Controls->Add(this->backButton);
-            this->Text = L"Ðåêîðäû";
+            this->Text = L"ÃÃ¥ÃªÃ®Ã°Ã¤Ã»";
             this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
             this->Load += gcnew System::EventHandler(this, &RecordsForm::RecordsForm_Load);
 
