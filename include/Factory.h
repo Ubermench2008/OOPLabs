@@ -21,8 +21,8 @@ private:
 
 template<typename T>
 bool Factory::RegisterConverter(std::string name) {
-    auto cvt = converterMap.find(name);
-    if(cvt != converterMap.end()) {
+    auto it = converterMap.find(name);
+    if(it != converterMap.end()) {
         return false;
     }
     converterMap.insert(std::make_pair(name, &create<T>));
