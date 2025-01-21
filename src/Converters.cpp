@@ -4,13 +4,13 @@
 #include <algorithm>
 #include <iostream>
 
-void Converters::MuteConverter::convert(SamplesProduct* input) {
+void Converters::MuteConverter::convert(SamplesProduct& input) {
     for(unsigned long long i = start * SAMPLES_IN_SECOND; i < std::min<unsigned long long>(input->size(), (unsigned long long)end * SAMPLES_IN_SECOND); i++) {
         (*input)[i] = 0;
     }
 }
 
-Converters::MuteConverter::MuteConverter(std::vector<std::string> args) {
+Converters::MuteConverter::MuteConverter(const std::vector<std::string>& args) {
     if (args.size() != 3) {
         throw std::runtime_error("Неправильное количество аргументов для mute-конвертера. Usage: sound_processor -h для справки.");
     }
@@ -18,7 +18,7 @@ Converters::MuteConverter::MuteConverter(std::vector<std::string> args) {
     end = std::stoi(args[2]);
 }
 
-void Converters::MixConverter::convert(SamplesProduct* input) {
+void Converters::MixConverter::convert(SamplesProduct& input) {
     WavParser parser(fileName);
     std::vector<short int> toMixWith = parser.parse();
     int j = 0;
@@ -27,7 +27,7 @@ void Converters::MixConverter::convert(SamplesProduct* input) {
     }
 }
 
-Converters::MixConverter::MixConverter(std::vector<std::string> args) {
+Converters::MixConverter::MixConverter(const std::vector<std::string>& args) {
     if (args.size() != 2 and args.size() != 3) {
         throw std::runtime_error("Неправильное количество аргументов для mix-конвертера. Usage: sound_processor -h для справки.");
     } else if (args.size() == 2) {
@@ -38,7 +38,7 @@ Converters::MixConverter::MixConverter(std::vector<std::string> args) {
     fileName = SoundProcessor::other_input_names[stoi(args[1].substr(1))];
 }
 
-void Converters::VolumeConverter::convert(SamplesProduct* input) {
+void Converters::VolumeConverter::convert(SamplesProduct& input) {
     if(start == -1) {
         for(short int& sample : *input) {
             sample *= factor;
@@ -50,7 +50,7 @@ void Converters::VolumeConverter::convert(SamplesProduct* input) {
     }
 }
 
-Converters::VolumeConverter::VolumeConverter(std::vector<std::string> args) {
+Converters::VolumeConverter::VolumeConverter(const std::vector<std::string>& args) {
     if (args.size() != 2 and args.size() != 4) {
         throw std::runtime_error("Неправильное количество аргументов для volume-конвертера. Использование: sound_processor -h для справки.");
     } else if (args.size() == 2) {
