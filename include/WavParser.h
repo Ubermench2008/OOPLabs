@@ -19,14 +19,14 @@ typedef struct
     short int bits_per_sample;
     char subchunk2_id[4];
     int subchunk2_size;			//кол-во выборок
-} wav_header;
+} Wav_header;
 
 class WavParser {
 public:
     ~WavParser();
     WavParser(std::string fileName);
     std::vector<short int> parse();
-    wav_header* header;
+    Wav_header* header;
 private:
     std::string fileName;
 };
